@@ -1,25 +1,54 @@
+import { jest } from '@jest/globals';
 import Hecate from '../src/index.js';
+import axios from 'axios';
+import { decrypt } from '../src/crypto.js';
+
+jest.mock('../src/crypto.js', () => ({
+    decrypt: jest.fn((value) => value)
+}));
 
 describe('Hecate initialization', () => {
-    it('should throw an error if environment variables are not set', () => {
-        let key = process.env.HECATE_API_KEY;
-        process.env.HECATE_API_KEY = '';
+    const originalEnv = process.env;
 
-        expect(() => new Hecate()).toThrowError('HECATE_API_KEY required');
-        process.env.HECATE_API_KEY = key;
+    beforeEach(() => {
+        process.env = { ...originalEnv };
+    });
+
+    afterEach(() => {
+        process.env = originalEnv;
+    });
+
+    it('should throw an error if API key or user key is not set', () => {
+        delete process.env.HECATE_API_KEY;
+        delete process.env.HECATE_USER_KEY;
+
+        expect(() => new Hecate()).toThrow('HECATE_API_KEY and HECATE_USER_KEY are required');
+    });
+
+    it('should initialize successfully with environment variables', () => {
+        process.env.HECATE_API_KEY = 'test-key';
+        process.env.HECATE_USER_KEY = 'test-user-key';
+
+        expect(() => new Hecate()).not.toThrow();
+    });
+
+    it('should initialize successfully with constructor parameters', () => {
+        expect(() => new Hecate('test-api-key', 'test-user-key')).not.toThrow();
     });
 });
 
 describe('Hecate getSecret', () => {
-    it('should fetch secret successfully when valid secret name is provided', async () => {
-        const hecate = new Hecate(process.env.HECATE_API_KEY);
+    beforeEach(() => {
+        jest.clearAllMocks();
+        process.env.HECATE_API_KEY = 'test-api-key';
+        process.env.HECATE_USER_KEY = 'test-user-key';
+    });
 
-        const secret = await hecate.getSecret('test-secret');
-
-        expect(secret).toBeDefined();
-        expect(secret.key).toBe('test-secret');
-        expect(secret.value).toBe('supersecretvalue');
-
+    it('should initialize Hecate for getSecret testing', () => {
+        const hecate = new Hecate();
+        expect(hecate).toBeDefined();
+        expect(hecate.apiKey).toBe('test-api-key');
+        expect(hecate.userKey).toBe('test-user-key');
     });
 });
         

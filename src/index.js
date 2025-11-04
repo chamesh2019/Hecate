@@ -1,13 +1,15 @@
 import axios from 'axios';
+import { decrypt } from './crypto.js';
 
 class Hecate {
     host = 'https://hecate.chames.dev/api/v1/secrets';
 
-    constructor(apiKey) {
+    constructor(apiKey, userKey) {
         this.apiKey = apiKey || process.env.HECATE_API_KEY;
-        
-        if (!this.apiKey) {
-            throw new Error('HECATE_API_KEY required');
+        this.userKey = userKey || process.env.HECATE_USER_KEY;
+
+        if (!this.apiKey || !this.userKey) {
+            throw new Error('HECATE_API_KEY and HECATE_USER_KEY are required');
         }
     }
 
@@ -22,6 +24,11 @@ class Hecate {
             if (!secret) {
                 throw new Error(`Secret "${secretName}" not found`);
             }
+
+            // Decrypt the secret value using the user key
+            const decryptedValue = decrypt(secret.value, this.userKey);
+            secret.value = decryptedValue;
+
             return secret;
         } catch (error) {
             console.error('Error fetching secret:', error);
