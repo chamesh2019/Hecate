@@ -1,15 +1,16 @@
-import CryptoJS from 'crypto-js';
+import { privateDecrypt } from 'crypto';
 
 /**
- * Decrypts a message using AES decryption with the provided key
- * @param {string} encryptedMessage - The encrypted message
- * @param {string} encryptionKey - The decryption key (same as encryption key)
- * @returns {string} Decrypted message as a string
+ * Decrypts a message using RSA decryption with the provided private key
+ * @param encryptedMessage - The encrypted message as a base64 string
+ * @param privateKey - The RSA private key in PEM format
+ * @returns Decrypted message as a string
  */
-export function decrypt(encryptedMessage, encryptionKey) {
+export function decrypt(encryptedMessage, privateKey) {
     try {
-        const decrypted = CryptoJS.AES.decrypt(encryptedMessage, encryptionKey);
-        return decrypted.toString(CryptoJS.enc.Utf8);
+        const buffer = Buffer.from(encryptedMessage, 'base64');
+        const decrypted = privateDecrypt(privateKey, buffer);
+        return decrypted.toString('utf8');
     } catch (error) {
         console.error("Decryption error:", error);
         throw new Error("Failed to decrypt message");
