@@ -1,15 +1,12 @@
 # Hecate Keystone
 
 A lightweight secrets manager client for JavaScript projects. Hecate Keystone provides a simple interface to securely fetch and manage secrets from your Hecate secrets management service with AES encryption.
-
+Companion project of https://github.com/chamesh2019/hecate-server
 ## Features
 
 - 🔐 Secure secret retrieval from Hecate API with AES decryption
 - 🚀 Simple and intuitive API
 - 🔑 Flexible authentication (environment variables or constructor)
-- 📦 ES Module support
-- ⚡ Built with async/await
-- 🧪 Fully tested
 - 🔒 End-to-end encryption with user-provided keys
 
 ## Installation
